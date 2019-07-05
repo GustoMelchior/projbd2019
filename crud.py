@@ -35,7 +35,7 @@ except (Exception, psycopg2.Error) as error :
     print ("Erro ao buscar tabela", error)
 
 try:
-update = '''insert into INSTITUICAO(logo) values(lo_import('C:\unb.jpg'));'''
+update = '''insert into INSTITUICAO values(39012,'UnB','DF','Darcy Ribeiro',1961,lo_import('C:\unb.jpg'));'''
 
     cursor.execute(update)
     connection.commit( )
