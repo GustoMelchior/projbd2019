@@ -1,59 +1,73 @@
-import psycopg2
-connection = psycopg2.connect(user = "postgres",
-									password = "",
-									host = "127.0.0.1",
-									port = "5432",
-									database = "esdb")
+import pymysql.cursors
 
-cursor = connection.cursor( )
+def mainMenu():
+	print("1: Criar tabela")
+	print("2: Realizar busca")
+	print("3: Atualizar valor")
+	print("4: Deletar")
+	print("5: Sair")
+	op=int(input("Escolha uma opcao: "))
+	if op==1:
+		createMenu()
+		mainMenu()
+	elif op==2:
+		retrieveMenu()
+		mainMenu()
+	elif op==3:
+		updateMenu()
+		mainMenu()
+	elif op==4:
+		deleteMenu()
+		mainMenu()
+	elif op==5:
+		exit
+	else:
+		printf("Opcao invalida.")
+		mainMenu()
 
-try:
-create = '''create table fomento
-                (
-				  agencia_id int not null,
-                  nome varchar(120) not null,
-                  data_contrato date,
-                  numero_bolsas int,
-                  primary key (agencia_id)
-				);'''
+def createMenu():
+	nome=input("Nome da nova tabela: ")
+	campo1=input("Nome do primeiro argumeto: ")
+	campo2=input("Nome do segundo argumento: ")
+	with connection.cursor() as cursor:
+		create = "create table {0}(id int not null,nome varchar(120) not null,{1} date,{2} int,primary key (id));".format(nome,campo1,campo2)
+		cursor.execute(create)
 
-    cursor.execute(create)
-    connection.commit( )
-    print("CREATE sucedeu")
-except (Exception, psycopg2.Error) as error :
-    print ("Erro ao criar tabela", error)
+	connection.commit()
 
-try:
-retrieve = '''SELECT I.nome, C.nome FROM esdb.INSTITUICAO AS I INNER JOIN esdb.INSTITUICAO_has_CURSO AS IC ON
-	I.idINSTITUICAO = IC.INSTITUICAO_idINSTItuiCAO INNER JOIN esdb.CURSO AS C ON C.idCURSO = IC.CURSO_idCURSO
-	WHERE C.total_cred < 200;'''
+def retrieveMenu():
+	query=input("Entre com a busca: ")
+	with connection.cursor() as cursor:
+		if query == "":
+			retrieve = "SELECT I.nome, C.nome FROM esdb.INSTITUICAO AS I INNER JOIN esdb.INSTITUICAO_has_CURSO AS IC ON I.idINSTITUICAO = IC.INSTITUICAO_idINSTItuiCAO INNER JOIN esdb.CURSO AS C ON C.idCURSO = IC.CURSO_idCURSO WHERE C.total_cred < 200;"
+			cursor.execute(retrieve)
+		else:
+			cursor.execute(query)
+		result = cursor.fetchone( )
+		print(result)
 
-    cursor.execute(retrieve)
-    connection.commit( )
-    print("RETRIEVE sucedeu")
-except (Exception, psycopg2.Error) as error :
-    print ("Erro ao buscar tabela", error)
+def updateMenu():
+	update=input("Entre com a busca: ")
+	with connection.cursor() as cursor:
+		#if update=="":
+			#update = "insert into INSTITUICAO values(39012,'UnB','DF','Darcy Ribeiro',1961,load_file('C:\Users\Gabriel\Desktop\unb.png'));"
+		cursor.execute(update)
 
-try:
-update = '''insert into INSTITUICAO values(39012,'UnB','DF','Darcy Ribeiro',1961,lo_import('C:\unb.jpg'));'''
+def deleteMenu():
+	delete=input("Entre com o comando de delecao: ")
+	with connection.cursor() as cursor:
+		if delete=="":
+			delete = "DELETE FROM disciplina WHERE creditos='6';"
+		else:
+			delete="{0}".format(delete)
+		cursor.execute(delete)
 
-    cursor.execute(update)
-    connection.commit( )
-    print("UPDATE sucedeu")
-except (Exception, psycopg2.Error) as error :
-    print ("Erro ao inserir imagem", error)
+connection = pymysql.connect(host='localhost',
+                             user='root',
+                             password='your666sql',
+                             db='esdb',
+                             charset='utf8mb4',
+                             cursorclass=pymysql.cursors.DictCursor)
 
-try:
-delete = '''DELETE FROM disciplina
-	WHERE creditos='6';'''
-
-    cursor.execute(delete)
-    connection.commit( )
-    print("RETRIEVE delete")
-except (Exception, psycopg2.Error) as error :
-    print ("Erro ao deletar dados", error)
-
-finally:
-    if(connection):
-		cursor.close()
-        connection.close()
+mainMenu()
+connection.close()

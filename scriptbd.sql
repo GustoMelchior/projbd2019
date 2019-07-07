@@ -1,0 +1,222 @@
+
+CREATE SCHEMA IF NOT EXISTS esdb;
+
+-- -----------------------------------------------------
+-- Table esdb.INSTITUICAO
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS esdb.INSTITUICAO (
+  idINSTITUICAO INT NOT NULL,
+  nome VARCHAR(45) NULL,
+  estado VARCHAR(45) NULL,
+  n_campi VARCHAR(45) NULL,
+  ano_fund INT NULL,
+  logo OID NULL,
+  PRIMARY KEY (idINSTITUICAO));
+
+
+-- -----------------------------------------------------
+-- Table esdb.DEPARTAMENTO
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS esdb.DEPARTAMENTO (
+  idDEPARTAMENTO INT NOT NULL,
+  nome VARCHAR(45) NULL,
+  PRIMARY KEY (idDEPARTAMENTO))
+;
+
+-- -----------------------------------------------------
+-- Table esdb.CURSO
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS esdb.CURSO (
+  idCURSO INT NOT NULL UNIQUE,
+  nome VARCHAR(45) NULL,
+  area VARCHAR(45) NULL,
+  total_cred INT NULL,
+  duracao INT NULL,
+  num_vagas_sem INT NULL,
+  DEPARTAMENTO_idDEPARTAMENTO INT NOT NULL,
+  PRIMARY KEY (idCURSO, DEPARTAMENTO_idDEPARTAMENTO),
+  CONSTRAINT fk_CURSO_DEPARTAMENTO1
+    FOREIGN KEY (DEPARTAMENTO_idDEPARTAMENTO)
+    REFERENCES esdb.DEPARTAMENTO (idDEPARTAMENTO)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+;
+
+-- -----------------------------------------------------
+-- Table esdb.DISCIPLINA
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS esdb.DISCIPLINA (
+  idDISCIPLINA INT NOT NULL,
+  nome VARCHAR(45) NULL,
+  creditos VARCHAR(45) NULL,
+  PRIMARY KEY (idDISCIPLINA))
+;
+
+-- -----------------------------------------------------
+-- Table esdb.METODO_INGRESSO
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS esdb.METODO_INGRESSO (
+  idMETODO_INGRESSO INT NOT NULL,
+  nome VARCHAR(45) NULL,
+  sem_ingresso VARCHAR(45) NULL,
+  num_vagas INT NULL,
+  PRIMARY KEY (idMETODO_INGRESSO))
+;
+
+-- -----------------------------------------------------
+-- Table esdb.PROFESSORES
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS esdb.PROFESSORES (
+  matricula INT NOT NULL,
+  nome VARCHAR(45) NULL,
+  area_atuacao VARCHAR(45) NULL,
+  DEPARTAMENTO_idDEPARTAMENTO INT NOT NULL,
+  PRIMARY KEY (matricula, DEPARTAMENTO_idDEPARTAMENTO),
+  CONSTRAINT fk_PROFESSORES_DEPARTAMENTO1
+    FOREIGN KEY (DEPARTAMENTO_idDEPARTAMENTO)
+    REFERENCES esdb.DEPARTAMENTO (idDEPARTAMENTO)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+;
+
+-- -----------------------------------------------------
+-- Table esdb.PROJETOS
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS esdb.PROJETOS (
+  idPROJETOS INT NOT NULL,
+  nome VARCHAR(45) NULL,
+  data_inicio VARCHAR(45) NULL,
+  DEPARTAMENTO_idDEPARTAMENTO INT NOT NULL,
+  PRIMARY KEY (idPROJETOS, DEPARTAMENTO_idDEPARTAMENTO),
+  CONSTRAINT fk_PROJETOS_DEPARTAMENTO1
+    FOREIGN KEY (DEPARTAMENTO_idDEPARTAMENTO)
+    REFERENCES esdb.DEPARTAMENTO (idDEPARTAMENTO)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+;
+
+-- -----------------------------------------------------
+-- Table esdb.POS_GRADUACAO
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS esdb.POS_GRADUACAO (
+  idPOS_GRADUACAO INT NOT NULL,
+  tipo VARCHAR(45) NULL,
+  duracao VARCHAR(45) NULL,
+  area VARCHAR(45) NULL,
+  total_cred VARCHAR(45) NULL,
+  nome VARCHAR(45) NULL,
+  DEPARTAMENTO_idDEPARTAMENTO INT NOT NULL,
+  PRIMARY KEY (idPOS_GRADUACAO, DEPARTAMENTO_idDEPARTAMENTO),
+  CONSTRAINT fk_POS_GRADUACAO_DEPARTAMENTO1
+    FOREIGN KEY (DEPARTAMENTO_idDEPARTAMENTO)
+    REFERENCES esdb.DEPARTAMENTO (idDEPARTAMENTO)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+;
+
+-- -----------------------------------------------------
+-- Table esdb.AVALIACAO
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS esdb.AVALIACAO (
+  idAVALIACAO INT NOT NULL,
+  nota INT NULL,
+  CURSO_idCURSO INT NOT NULL,
+  PRIMARY KEY (idAVALIACAO, CURSO_idCURSO),
+  CONSTRAINT fk_AVALIACAO_CURSO1
+    FOREIGN KEY (CURSO_idCURSO)
+    REFERENCES esdb.CURSO
+
+
+(idCURSO)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+;
+
+-- -----------------------------------------------------
+-- Table esdb.TIPO_VAGAS
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS esdb.TIPO_VAGAS (
+  idTIPO_VAGAS INT NOT NULL,
+  nome VARCHAR(45) NULL,
+  numero_vagas VARCHAR(45) NULL,
+  PRIMARY KEY (idTIPO_VAGAS))
+;
+
+-- -----------------------------------------------------
+-- Table esdb.INSTITUICAO_has_CURSO
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS esdb.INSTITUICAO_has_CURSO (
+  INSTITUICAO_idINSTITUICAO INT NOT NULL,
+  CURSO_idCURSO INT NOT NULL,
+  PRIMARY KEY (INSTITUICAO_idINSTITUICAO, CURSO_idCURSO),
+  CONSTRAINT fk_INSTITUICAO_has_CURSO_INSTITUICAO
+    FOREIGN KEY (INSTITUICAO_idINSTITUICAO)
+    REFERENCES esdb.INSTITUICAO (idINSTITUICAO)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT fk_INSTITUICAO_has_CURSO_CURSO1
+    FOREIGN KEY (CURSO_idCURSO)
+    REFERENCES esdb.CURSO (idCURSO)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+;
+
+-- -----------------------------------------------------
+-- Table esdb.CURSO_has_DISCIPLINA
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS esdb.CURSO_has_DISCIPLINA (
+  CURSO_idCURSO INT NOT NULL,
+  DISCIPLINA_idDISCIPLINA INT NOT NULL,
+  PRIMARY KEY (CURSO_idCURSO, DISCIPLINA_idDISCIPLINA),
+  CONSTRAINT fk_CURSO_has_DISCIPLINA_CURSO1
+    FOREIGN KEY (CURSO_idCURSO)
+    REFERENCES esdb.CURSO (idCURSO)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT fk_CURSO_has_DISCIPLINA_DISCIPLINA1
+    FOREIGN KEY (DISCIPLINA_idDISCIPLINA)
+    REFERENCES esdb.DISCIPLINA (idDISCIPLINA)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+;
+
+-- -----------------------------------------------------
+-- Table esdb.METODO_INGRESSO_has_TIPO_VAGAS
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS esdb.METODO_INGRESSO_has_TIPO_VAGAS (
+  METODO_INGRESSO_idMETODO_INGRESSO INT NOT NULL,
+  TIPO_VAGAS_idTIPO_VAGAS INT NOT NULL,
+  PRIMARY KEY (METODO_INGRESSO_idMETODO_INGRESSO, TIPO_VAGAS_idTIPO_VAGAS),
+  CONSTRAINT fk_METODO_INGRESSO_has_TIPO_VAGAS_METODO_INGRESSO1
+    FOREIGN KEY (METODO_INGRESSO_idMETODO_INGRESSO)
+    REFERENCES esdb.METODO_INGRESSO (idMETODO_INGRESSO)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT fk_METODO_INGRESSO_has_TIPO_VAGAS_TIPO_VAGAS1
+    FOREIGN KEY (TIPO_VAGAS_idTIPO_VAGAS)
+    REFERENCES esdb.TIPO_VAGAS (idTIPO_VAGAS)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+;
+
+-- -----------------------------------------------------
+-- Table esdb.INSTITUICAO_has_METODO_INGRESSO
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS esdb.INSTITUICAO_has_METODO_INGRESSO (
+  INSTITUICAO_idINSTITUICAO INT NOT NULL,
+  METODO_INGRESSO_idMETODO_INGRESSO INT NOT NULL,
+  PRIMARY KEY (INSTITUICAO_idINSTITUICAO, METODO_INGRESSO_idMETODO_INGRESSO),
+  CONSTRAINT fk_INSTITUICAO_has_METODO_INGRESSO_INSTITUICAO1
+    FOREIGN KEY (INSTITUICAO_idINSTITUICAO)
+    REFERENCES esdb.INSTITUICAO (idINSTITUICAO)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT fk_INSTITUICAO_has_METODO_INGRESSO_METODO_INGRESSO1
+    FOREIGN KEY (METODO_INGRESSO_idMETODO_INGRESSO)
+    REFERENCES esdb.METODO_INGRESSO (idMETODO_INGRESSO)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+;
+
+
+
